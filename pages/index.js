@@ -1,4 +1,6 @@
 import { useEffect, useState } from 'react';
+import { useUser } from '../contexts/userContext';
+import { useRouter } from 'next/router';
 
 export default function Home() {
     const [query, setQuery] = useState('trending products');
@@ -7,6 +9,8 @@ export default function Home() {
     const [exchangeRate, setExchangeRate] = useState(82); // 1 USD = 82 INR
     const [activeCategory, setActiveCategory] = useState('All');
     const [sortOrder, setSortOrder] = useState(null);
+    const { user } = useUser(); // Access user from context
+    const router = useRouter();
 
     const fetchProducts = async (searchQuery) => {
         setLoading(true);
@@ -60,10 +64,19 @@ export default function Home() {
         setProducts(sorted);
     };
 
+    // Handle product card click with authentication check
+    const handleProductClick = (link) => {
+        if (!user) {
+            router.push('/signin');
+        } else {
+            window.open(link, '_blank'); // Open the API-provided link in a new tab
+        }
+    };
+
     return (
         <div className="min-h-screen bg-gray-900 text-gray-100">
             {/* Navigation */}
-            <nav className="bg-gray-800 fixed w-full z-50 top-0">
+            {/* <nav className="bg-gray-800 fixed w-full z-50 top-0">
                 <div className="max-w-7xl mx-auto px-4">
                     <div className="flex justify-between h-16 items-center">
                         <div className="flex items-center">
@@ -79,13 +92,13 @@ export default function Home() {
                         </div>
 
                         <div className="flex items-center space-x-4">
-                            <a href="#" className="hidden md:block hover:text-purple-400">Sign In</a>
+                            <a href="/signin" className="hidden md:block hover:text-purple-400">Sign In</a>
                             <span className="hidden md:block text-gray-600">|</span>
-                            <a href="#" className="hidden md:block hover:text-purple-400">Register</a>
+                            <a href="/register" className="hidden md:block px-4 py-2 bg-purple-600 text-white rounded hover:bg-purple-700 transition-colors">Register</a>
                         </div>
                     </div>
                 </div>
-            </nav>
+            </nav> */}
 
             {/* Hero Section */}
             <div className="relative pt-16">
@@ -159,7 +172,6 @@ export default function Home() {
                             >
                                 Rating
                             </button>
-
                         </div>
                     </div>
                     <div className="flex flex-wrap gap-2">
@@ -212,12 +224,10 @@ export default function Home() {
                 {/* Product Grid */}
                 <div className="grid gap-6 grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4">
                     {products.map((product, idx) => (
-                        <a
+                        <div
                             key={idx}
-                            href={product.link}
-                            target="_blank"
-                            rel="noopener noreferrer"
-                            className="bg-gray-800 rounded-lg overflow-hidden hover:shadow-xl transition transform hover:scale-105 flex flex-col h-full"
+                            onClick={() => handleProductClick(product.link)}
+                            className="bg-gray-800 rounded-lg overflow-hidden hover:shadow-xl transition transform hover:scale-105 flex flex-col h-full cursor-pointer"
                         >
                             {product.thumbnail && (
                                 <div className="relative h-48 overflow-hidden">
@@ -246,15 +256,13 @@ export default function Home() {
                                     </div>
                                 )}
                                 <div className="mt-auto pt-4 flex justify-between items-center">
-                                    <span className="text-sm text-gray-400">
-                                        View Details
-                                    </span>
+                                    <span className="text-sm text-gray-400">View Details</span>
                                     <div className="bg-purple-600 hover:bg-purple-700 text-white px-3 py-1 rounded text-sm transition-colors">
                                         Shop Now
                                     </div>
                                 </div>
                             </div>
-                        </a>
+                        </div>
                     ))}
                 </div>
 
@@ -307,7 +315,7 @@ export default function Home() {
                         </div>
                     </div>
                     <div className="border-t border-gray-700 mt-8 pt-8 text-center text-gray-400">
-                        <p>&copy; 2025 Smart Shop. All rights reserved.</p>
+                        <p>© 2025 Smart Shop. All rights reserved.</p>
                     </div>
                 </div>
             </footer>
